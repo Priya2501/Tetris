@@ -294,8 +294,24 @@ def clear_rows(grid, locked):
     return inc
 
 
-def pause():
-    paused = False
+def pause(surface, run, clock):
+    paused = True
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.display.quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    paused = False
+
+        surface.fill((0,0,0))
+        draw_text_mid(surface, 'PAUSED', 70, (255,0,0))
+        draw_text_mid(surface, 'Press C to continue', 40, (255,255,255), 50)
+        pygame.display.update()
+        clock.tick(5)
+
+    return run
 
 
 def main(win):
@@ -353,6 +369,8 @@ def main(win):
                     current_piece.rotation += 1
                     if not(valid_space(current_piece, grid)):
                         current_piece.rotation -=1
+                if event.key == pygame.K_p:
+                    run = pause(win, run, clock)
 
         shape_pos = convert_shape_format(current_piece)
 
@@ -396,6 +414,7 @@ def main_menu(win):
     while run:
         win.fill((0,0,0))
         draw_text_mid(win, 'Press Any Key To Continue', 60, (255,255,255))
+        draw_text_mid(win, 'Press P to pause the game at any time', 40, (255,0,0), 50)
         pygame.display.update()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
