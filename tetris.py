@@ -402,8 +402,8 @@ def main(win):
             update_scores(score)
             last_score = high_score()
             win.fill((0,0,0))
-            draw_text_mid(win, "YOU LOST!!", 100, (255,0,0))
-            draw_text_mid(win, "HIGH SCORE : " + str(last_score), 60, (255,255,255), 75)
+            draw_text_mid(win, "GAME OVER!!", 140, (255,0,0))
+            draw_text_mid(win, "HIGH SCORE : " + str(last_score), 70, (255,255,255), 75)
             pygame.display.update()
             pygame.time.delay(2000)
             run = False
