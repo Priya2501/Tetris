@@ -12,7 +12,7 @@ s_width = 800 #width of screen
 s_height = 660 #height of screen
 p_width = 300 #play area width
 p_height = 600 #play area height
-block_size = 30zz
+block_size = 30
 tlx = (s_width - p_width) // 2
 tly = s_height - p_height 
 
@@ -394,6 +394,7 @@ def main(win):
             change_piece = False
             
             score += clear_rows(grid, locked_positions) * 10
+
         
         draw_window(win, grid, score)
         draw_nextshape(next_piece, win)
