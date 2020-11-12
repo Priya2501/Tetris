@@ -10,11 +10,10 @@ pygame.font.init()
 # GLOBAL VARIABLES
 s_width = 800 #width of screen
 s_height = 660 #height of screen
-#play width must be exactly half of play height as greids are of size 10x20
 p_width = 300 #play area width
 p_height = 600 #play area height
-block_size = 30 # height/20 = 20 // width/10 = 20
-tlx = (s_width - p_width) // 2 # top left x position
+block_size = 30zz
+tlx = (s_width - p_width) // 2
 tly = s_height - p_height 
 
 
@@ -124,7 +123,7 @@ T = [['.....',
       '..0..', 
       '.....']]
 
-shapes = [S, Z, Z, I, I, O, J, L, L, T] #index 0-6 represent shapes
+shapes = [S, Z, Z, I, I, O, J, L, L, T]
 shape_colors = [(255,128,0), (153,255,51), (153,255,51), (0,255,255), (0,255,255), (255,255,0), (102,0,204), (255,51,153), (255,51,153), (0,128,255)]
 
 
@@ -151,28 +150,28 @@ def create_grid(locked_pos={}):
     return grid
 
 
-def convert_shape_format(shape): #convert shape format to understandable positions
+def convert_shape_format(shape): #convert shape format to positions
     positions = []
-    formats = shape.shape[shape.rotation % len(shape.shape)] #gives the current shape(sublist) from the list of shapes {eg. at 0 rotation we have first sublist from any given shape list (also depends on number of available transformations)}
+    formats = shape.shape[shape.rotation % len(shape.shape)] #gives the current shape(sublist)
 
     for i, line in enumerate(formats):
-        row = list(line) #a line looks something like '..0..' (hence row will have a sublist)
+        row = list(line) #a line looks something like '..0..'
 
         for j, col in enumerate(row): #col will have a '.' or a '0' each time
             if col == '0':
                 positions.append((shape.x + j, shape.y + i)) #for every position we need to add the prev x and y pos of the shape to the col and row value of where the block should be
 
     for i, pos in enumerate(positions):
-        positions[i] = (pos[0] - 2, pos[1] - 3) #to move everything to the left and up ie. to avoid offsetting to the right and down due to trailing periods
+        positions[i] = (pos[0] - 2, pos[1] - 3) #to avoid offsetting to the right and down due to trailing periods
 
     return positions
 
 
 def valid_space(shape, grid):
     acc_pos = [[ (j, i) for j in range(10) if grid[i][j] == (0,0,0)] for i in range(20)] #every possible *empty* position for 20x10 grid
-    acc_pos = [j for sub_lst in acc_pos for j in sub_lst] #overriding the list to create a 1-D list { [[()], [()]] --> [(), ()]}
+    acc_pos = [j for sub_lst in acc_pos for j in sub_lst] #overriding the list to create a 1-D list
     
-    formatted_shapes = convert_shape_format(shape) #[(), ()] also 1-D
+    formatted_shapes = convert_shape_format(shape)
     
     for pos in formatted_shapes:
         if pos not in acc_pos and pos[1] > -1: #shapes(y pos) starts somewhere above the screen and not shows up on screen
@@ -272,23 +271,28 @@ def high_score():
 
 
 def clear_rows(grid, locked):
-    inc = 0
+    inc = False
+    ind = []
     for i in range(len(grid)-1, -1, -1):
         row = grid[i]
-        if (0,0,0) not in row: #row is completely filled with blocks
-            inc += 1 #add 1 when delete a row to know how many times above rows need to be shifted down
-            ind = i
+        if (0,0,0) not in row:
+            inc = True  
+            ind.append(i) #used to indexing which row had been removed
             for j in range(len(row)):
                 try:
                     del locked[(j, i)] #deleting those keys and values from the grid ie, locked positions list
                 except:
                     continue
 
-    if inc > 0:
+    if inc:
         for key in sorted(list(locked), key = lambda x: x[1])[::-1]: #sorts on basis of y value
             x, y = key
-            if y < ind: #rows above the current index
-                newKey = (x, y + inc) #shifting the above rows down by inc y
+            increment = 0
+            for d in ind:
+                if y < d: #rows above the current index
+                    increment += 1
+            if increment > 0: 
+                newKey = (x, y + increment) #shifting the above rows down by incrementing y
                 locked[newKey] = locked.pop(key)
 
     return inc
@@ -329,19 +333,19 @@ def main(win):
     last_score = 0
 
     while run:
-        grid = create_grid(locked_positions) #as in each iteration locked positions can change
-        fall_time += clock.get_rawtime() #gets time in milisec since clock ticked last time
+        grid = create_grid(locked_positions)
+        fall_time += clock.get_rawtime() 
         fall_level += clock.get_rawtime()
         clock.tick()
 
         if fall_level/100 > 5: #to inc speed every 5s in the game
             fall_level = 0
-            if fall_speed > 0.22: #max threshold speed
+            if fall_speed > 0.22:
                 fall_speed -= 0.0015
 
         if fall_time/1000 > fall_speed:
             fall_time = 0
-            current_piece.y += 1 #moving piece fall down at a const speed
+            current_piece.y += 1 
             if not (valid_space(current_piece, grid)) and current_piece.y > 0:
                 current_piece.y -=1
                 change_piece = True #piece either hit bottom of screen or another piece
@@ -380,18 +384,16 @@ def main(win):
             if y > -1:
                 grid[y][x] = current_piece.color
 
-        if change_piece: #means we have hit something we have to lock that position and get next piece
+        if change_piece:
             for pos in shape_pos:
                 p = (pos[0], pos[1])
                 locked_positions[p] = current_piece.color
-                #{(x,y):(rgb value)}   format of locked_positions
-                #update the color of grid acc to locked position of a shape at a particular x and y pos
+                #updating the color of grid acc to locked position of a shape
             current_piece = next_piece
             next_piece = get_shape()
             change_piece = False
-            #we can only call clearrows when current piecehas landed static
             
-            score += clear_rows(grid, locked_positions) * 10 #inc score by 10 for each row cleared
+            score += clear_rows(grid, locked_positions) * 10
         
         draw_window(win, grid, score)
         draw_nextshape(next_piece, win)
