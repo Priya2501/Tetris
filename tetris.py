@@ -416,7 +416,7 @@ def main_menu(win):
     run = True
     while run:
         win.fill((0,0,0))
-        draw_text_mid(win, 'Press Any Key To Continue', 60, (255,255,255))
+        draw_text_mid(win, 'Press Any Key To Start !!', 60, (255,255,255))
         draw_text_mid(win, 'Press P to pause the game at any time', 40, (255,0,0), 50)
         pygame.display.update()
         for event in pygame.event.get():
